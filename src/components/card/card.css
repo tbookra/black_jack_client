@@ -1,0 +1,37 @@
+.cardContainer {
+  width: 150px;
+  height: 220px;
+  border: 1px solid black;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+.symbolsContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.symbolsRight {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  flex-direction: column-reverse;
+}
+.symbolsLeft {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+.symbolImg {
+  padding: 5px;
+  width: 30px;
+  height: 30px;
+}
+.symbolNumber {
+  font-weight: bold;
+  font-size: 20px;
+}

@@ -1,0 +1,77 @@
+.homeContainer {
+  display: flex;
+  flex-direction: column;
+}
+.buttonsContainer {
+  width: 100%;
+  height: 20vh;
+}
+.playerContainer {
+  width: 100%;
+  height: 30vh;
+  display: flex;
+  align-items: center;
+}
+.dealerContainer {
+  width: 100%;
+  height: 30vh;
+  display: flex;
+  align-items: center;
+}
+.buttonsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.btn:hover {
+  opacity: 0.6;
+}
+.startBtn {
+  background-color: greenyellow;
+}
+.hitBtn {
+  background-color: rgb(161, 90, 249);
+}
+.callBtn {
+  background-color: rgb(223, 20, 81);
+}
+.homeHr {
+  margin: 5px 0;
+}
+.titleDiv {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.playerTitle {
+  color: blue;
+  font-weight: bold;
+}
+.endGameContainer {
+  visibility: hidden;
+  width: 80%;
+  background-color: bisque;
+  align-self: center;
+  padding: 10px;
+  border: 1px dashed blue;
+  border-radius: 5px;
+}
+.show {
+  visibility: visible;
+}
+.lost {
+  text-align: center;
+  margin-left: 5px;
+  color: red;
+}
+.win {
+  text-align: center;
+  margin-left: 5px;
+  color: rgb(27, 204, 95);
+}
