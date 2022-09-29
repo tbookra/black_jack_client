@@ -36,6 +36,7 @@ export const getColor = (sym) => {
   }
 };
 export const hasWon = (num) => {
+  console.log('from haswon',num);
   if (num > 21) return "lost";
   if (num === 21) return "win";
   return "no";

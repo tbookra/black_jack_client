@@ -7,6 +7,8 @@ import { getNumber, hasWon, hasDealerWon } from "../../utils/utilsFuntions";
 export default function Home() {
   //   const [isFetching, setIsFetching] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [restart, setRestart] = useState(false);
+
   const [playerCards, setPlayersCards] = useState([]);
   const [dealersCards, setDealersCards] = useState([]);
   const [playerScore, setPlayerScore] = useState(0);
@@ -18,17 +20,19 @@ export default function Home() {
   const [winStatus, setWinStatus] = useState("no");
   const interval = useRef(null);
 
-  const resetStates = () => {
-    // reset the game without the need for refresh
-    setPlayersCards([]);
-    setDealersCards([]);
-    setPlayerScore(0);
-    setDealerScore(0);
-    setBtnDisable(false);
-    setPlayerCalled(false);
-    setFetchError(null);
-    setWinStatus("no");
-  };
+  useEffect(() => {
+      setPlayersCards([]);
+      setDealersCards([]);
+      setPlayerScore(0);
+      setDealerScore(0);
+      setCallBtnDisable(false);
+      setBtnDisable(false);
+      setPlayerCalled(false);
+      setFetchError(null);
+      setWinStatus("no");
+      setRestart(false);
+      console.log(restart);
+  }, [restart]);
 
   useEffect(() => {
     // useEffect for catching a Players moves that ends the game
@@ -40,7 +44,7 @@ export default function Home() {
       setStartBtnDisable(false);
       setCallBtnDisable(true);
     }
-  }, [playerScore, btnDisable]);
+  }, [playerScore]);
 
   useEffect(() => {
     // useEffect for catching a Dealers moves that ends the game
@@ -49,7 +53,7 @@ export default function Home() {
       setWinStatus("win");
     } else if (win === "win") {
       setWinStatus("lost");
-    } else if (win === "stop" && palyerCalled) {
+    } else if (win === "stop" ) {
       if (playerScore > dealerScore) {
         setWinStatus("win");
       } else {
@@ -66,14 +70,14 @@ export default function Home() {
   }, [dealerScore, winStatus, palyerCalled, playerScore]);
 
   const handleStartClick = async () => {
-    resetStates();
+    setRestart(true);
     const PLAYER_DELAY = 700;
     const DEALER_DELAY = 1500;
     try {
       const { data } = await serverRequests.get("game_moves/new-game");
       setTimeout(() => {
         setPlayersCards([data.success.player[0]]);
-        setWinStatus("no");
+        // setWinStatus("no");
       }, 400);
       setTimeout(() => {
         setPlayersCards((prev) => [...prev, data.success.player[1]]);
@@ -97,11 +101,11 @@ export default function Home() {
             getNumber(data.success.dealer[1].split(";")[1]).value
         );
       }, DEALER_DELAY);
-      setTimeout(() => {
-        setStartBtnDisable(true);
-        setBtnDisable(false);
-        setCallBtnDisable(false);
-      }, DEALER_DELAY + 100);
+      // setTimeout(() => {
+      //   setStartBtnDisable(true);
+      //   setBtnDisable(false);
+      //   setCallBtnDisable(false);
+      // }, DEALER_DELAY + 100);
     } catch (error) {
       setFetchError(error.message);
     }
