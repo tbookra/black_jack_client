@@ -82,8 +82,7 @@ export default function Home() {
       setTimeout(() => {
         setDealersCards((prev) => [...prev, data.success.dealer[1]]);
       }, DEALER_DELAY);
-      // setPlayersCards(data.success.player);
-      // setDealersCards(data.success.dealer);
+
       setTimeout(() => {
         setPlayerScore(
           getNumber(data.success.player[0].split(";")[1]).value +
@@ -103,7 +102,6 @@ export default function Home() {
       }, DEALER_DELAY + 100);
     } catch (error) {
       setFetchError(error.message);
-      // setStartBtnDisable(false)
     }
   };
 
@@ -116,7 +114,6 @@ export default function Home() {
       );
     } catch (error) {
       setFetchError(error.message);
-      // setStartBtnDisable(false)
     }
   };
   const handleCallClick = async () => {
@@ -131,7 +128,6 @@ export default function Home() {
         );
       } catch (error) {
         setFetchError(error.message);
-        // setStartBtnDisable(false)
       }
     }, 1000);
   };
