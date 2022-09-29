@@ -35,6 +35,7 @@ export default function Home() {
     const win = hasWon(playerScore);
     setWinStatus(win);
     if (win === "win" || win === "lost") {
+      console.log("win", win);
       setBtnDisable(true);
       setStartBtnDisable(false);
       setCallBtnDisable(true);
@@ -72,6 +73,7 @@ export default function Home() {
       const { data } = await serverRequests.get("game_moves/new-game");
       setTimeout(() => {
         setPlayersCards([data.success.player[0]]);
+        setWinStatus("no");
       }, 400);
       setTimeout(() => {
         setPlayersCards((prev) => [...prev, data.success.player[1]]);
