@@ -6,6 +6,7 @@ import { getNumber, hasWon, hasDealerWon } from "../../utils/utilsFuntions";
 
 export default function Home() {
   //   const [isFetching, setIsFetching] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
   const [playerCards, setPlayersCards] = useState([]);
   const [dealersCards, setDealersCards] = useState([]);
   const [playerScore, setPlayerScore] = useState(0);
@@ -18,46 +19,30 @@ export default function Home() {
   const interval = useRef(null);
 
   const resetStates = () => {
+    // reset the game without the need for refresh
     setPlayersCards([]);
     setDealersCards([]);
     setPlayerScore(0);
     setDealerScore(0);
     setBtnDisable(false);
     setPlayerCalled(false);
+    setFetchError(null);
     setWinStatus("no");
-  };
-  const handleStartClick = async () => {
-    resetStates();
-    const { data } = await serverRequests.get("game_moves/new-game");
-    setPlayersCards(data.success.player);
-    setDealersCards(data.success.dealer);
-
-    setPlayerScore(
-      getNumber(data.success.player[0].split(";")[1]).value +
-        getNumber(data.success.player[1].split(";")[1]).value
-    );
-    setDealerScore(
-      getNumber(data.success.dealer[0].split(";")[1]).value +
-        getNumber(data.success.dealer[1].split(";")[1]).value
-    );
-    setTimeout(() => {
-      setStartBtnDisable(true);
-      setBtnDisable(false);
-      setCallBtnDisable(false)
-    }, 10);
   };
 
   useEffect(() => {
+    // useEffect for catching a Players moves that ends the game
     const win = hasWon(playerScore);
     setWinStatus(win);
     if (win === "win" || win === "lost") {
       setBtnDisable(true);
       setStartBtnDisable(false);
-      setCallBtnDisable(true)
+      setCallBtnDisable(true);
     }
   }, [playerScore, btnDisable]);
 
   useEffect(() => {
+    // useEffect for catching a Dealers moves that ends the game
     const win = hasDealerWon(dealerScore);
     if (win === "lost") {
       setWinStatus("win");
@@ -73,32 +58,92 @@ export default function Home() {
     if (win === "win" || win === "lost" || win === "stop") {
       setBtnDisable(true);
       setStartBtnDisable(false);
-      setCallBtnDisable(true)
+      setCallBtnDisable(true);
     }
     if (winStatus === "win" || winStatus === "lost")
       clearInterval(interval.current);
   }, [dealerScore, winStatus, palyerCalled, playerScore]);
 
+  const handleStartClick = async () => {
+    resetStates();
+    const PLAYER_DELAY = 700;
+    const DEALER_DELAY = 1500;
+    try {
+      const { data } = await serverRequests.get("game_moves/new-game");
+      setTimeout(() => {
+        setPlayersCards([data.success.player[0]]);
+      }, 400);
+      setTimeout(() => {
+        setPlayersCards((prev) => [...prev, data.success.player[1]]);
+      }, PLAYER_DELAY);
+      setTimeout(() => {
+        setDealersCards([data.success.dealer[0]]);
+      }, 1200);
+      setTimeout(() => {
+        setDealersCards((prev) => [...prev, data.success.dealer[1]]);
+      }, DEALER_DELAY);
+      // setPlayersCards(data.success.player);
+      // setDealersCards(data.success.dealer);
+      setTimeout(() => {
+        setPlayerScore(
+          getNumber(data.success.player[0].split(";")[1]).value +
+            getNumber(data.success.player[1].split(";")[1]).value
+        );
+      }, PLAYER_DELAY);
+      setTimeout(() => {
+        setDealerScore(
+          getNumber(data.success.dealer[0].split(";")[1]).value +
+            getNumber(data.success.dealer[1].split(";")[1]).value
+        );
+      }, DEALER_DELAY);
+      setTimeout(() => {
+        setStartBtnDisable(true);
+        setBtnDisable(false);
+        setCallBtnDisable(false);
+      }, DEALER_DELAY + 100);
+    } catch (error) {
+      setFetchError(error.message);
+      // setStartBtnDisable(false)
+    }
+  };
+
   const handleHitClick = async () => {
-    const { data } = await serverRequests.get("game_moves/hit");
-    setPlayersCards((prev) => [...prev, data.success]);
-    setPlayerScore(
-      (prev) => prev + getNumber(data.success.split(";")[1]).value
-    );
+    try {
+      const { data } = await serverRequests.get("game_moves/hit");
+      setPlayersCards((prev) => [...prev, data.success]);
+      setPlayerScore(
+        (prev) => prev + getNumber(data.success.split(";")[1]).value
+      );
+    } catch (error) {
+      setFetchError(error.message);
+      // setStartBtnDisable(false)
+    }
   };
   const handleCallClick = async () => {
     setPlayerCalled(true);
+
     interval.current = setInterval(async () => {
-      const { data } = await serverRequests.get("game_moves/hit");
-      setDealersCards((prev) => [...prev, data.success]);
-      setDealerScore(
-        (prev) => prev + getNumber(data.success.split(";")[1]).value
-      );
+      try {
+        const { data } = await serverRequests.get("game_moves/hit");
+        setDealersCards((prev) => [...prev, data.success]);
+        setDealerScore(
+          (prev) => prev + getNumber(data.success.split(";")[1]).value
+        );
+      } catch (error) {
+        setFetchError(error.message);
+        // setStartBtnDisable(false)
+      }
     }, 1000);
   };
 
   return (
     <div className="homeContainer">
+      {fetchError && (
+        <div className="fetchErrorDiv">
+          {`Something went wrong: ${fetchError}`}
+          <div>Please refresh</div>
+        </div>
+      )}
       <div className="buttonsContainer">
         <button
           className="btn startBtn"
@@ -114,7 +159,11 @@ export default function Home() {
         >
           HIT
         </button>
-        <button className="btn callBtn" onClick={handleCallClick} disabled={callBtnDisable}>
+        <button
+          className="btn callBtn"
+          onClick={handleCallClick}
+          disabled={callBtnDisable}
+        >
           CALL
         </button>
       </div>
@@ -150,7 +199,7 @@ export default function Home() {
             ))
           : ""}
       </div>
-      <div
+      <div // win/lose message
         className={
           winStatus === "lost" || winStatus === "win"
             ? "endGameContainer show"
